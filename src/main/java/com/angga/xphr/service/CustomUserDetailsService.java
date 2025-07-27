@@ -3,34 +3,54 @@ package com.angga.xphr.service;
 import com.angga.xphr.model.Employee;
 import com.angga.xphr.repository.EmployeeRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.User.UserBuilder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
+
+    @Value("${app.auth.admin.username}")
+    private String adminUsername;
+
+    @Value("${app.auth.admin.password}")
+    private String adminPassword;
+
+    @Value("${app.auth.admin.role}")
+    private String adminRole;
+
+    @Value("${app.auth.employee.default-password}")
+    private String defaultEmployeePassword;
+
+    @Value("${app.auth.employee.role}")
+    private String employeeRole;
+
+    public CustomUserDetailsService(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // The harcoded for admin --> it's just for fun :))
-        if ("admin".equals(username)) {
-            return User.builder()
-                    .username("admin")
-                    .password("{noop}admin123")
-                    .roles("ADMIN")
-                    .build();
+        UserBuilder builder;
+
+        if (adminUsername.equals(username)) {
+            builder = User.builder()
+                    .username(adminUsername)
+                    .password("{noop}" + adminPassword)
+                    .roles(adminRole);
+        } else {
+            Employee employee = employeeRepository.findByName(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Employee not found: " + username));
+
+            builder = User.builder()
+                    .username(employee.getName())
+                    .password("{noop}" + defaultEmployeePassword)
+                    .roles(employeeRole);
         }
 
-        Employee employee = employeeRepository.findByName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Employee not found: " + username));
-
-        return User.builder()
-                .username(employee.getName())
-                .password("{noop}employee123")
-                .roles("EMPLOYEE")
-                .build();
+        return builder.build();
     }
 }
