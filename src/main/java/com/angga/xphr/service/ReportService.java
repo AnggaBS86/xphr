@@ -25,8 +25,8 @@ public class ReportService {
 
         List<ReportDTO> reportList = new ArrayList<>();
         for (Object[] row : results) {
-            String employeeName = (String) row[0];
-            String projectName = (String) row[1];
+            String employeeName = row[0] != null ? (String) row[0] : "-";
+            String projectName = row[1] != null ? (String) row[1] : "-";
             double totalHours = row[2] != null ? ((Number) row[2]).doubleValue() : 0.0;
             reportList.add(new ReportDTO(employeeName, projectName, totalHours));
         }
@@ -41,8 +41,8 @@ public class ReportService {
 
         List<ReportDTO> reportList = new ArrayList<>();
         for (Object[] row : results) {
-            String employeeName = (String) row[0];
-            String projectName = (String) row[1];
+            String employeeName = row[0] != null ? (String) row[0] : "-";
+            String projectName = row[1] != null ? (String) row[1] : "-";
             double totalHours = row[2] != null ? ((Number) row[2]).doubleValue() : 0.0;
             reportList.add(new ReportDTO(employeeName, projectName, totalHours));
         }
