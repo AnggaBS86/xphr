@@ -2,7 +2,6 @@ package com.angga.xphr.controller;
 
 import com.angga.xphr.service.ReportService;
 import com.angga.xphr.model.dto.ReportDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,12 +11,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class ReportController {
 
-    @Autowired
-    private ReportService reportService;
+    private final ReportService reportService;
+
+    public ReportController(ReportService reportService) {
+        this.reportService = reportService;
+    }
 
     @GetMapping("/report")
     public String getReport(
@@ -27,26 +31,20 @@ public class ReportController {
             Authentication authentication) {
 
         var username = authentication.getName();
-        var isAdmin = isAdmin(authentication);
+        var isAdmin = hasRole(authentication, "ROLE_ADMIN");
 
-        List<ReportDTO> reportData;
-        if (isAdmin) {
-            reportData = reportService.getReport(start, end);
-        } else {
-            reportData = reportService.getReportForEmployee(username, start, end);
-        }
+        List<ReportDTO> reportData = isAdmin
+                ? reportService.getReport(start, end)
+                : reportService.getReportForEmployee(username, start, end);
 
         model.addAttribute("report", reportData);
         return "report";
     }
 
-    private boolean isAdmin(Authentication authentication) {
-        for (var authority : authentication.getAuthorities()) {
-            if ("ROLE_ADMIN".equals(authority.getAuthority())) {
-                return true;
-            }
-        }
-        
-        return false;
+    private boolean hasRole(Authentication authentication, String role) {
+        Set<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        return roles.contains(role);
     }
 }
