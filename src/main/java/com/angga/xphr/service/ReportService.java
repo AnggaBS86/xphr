@@ -3,21 +3,26 @@ package com.angga.xphr.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.angga.xphr.repository.TimeRecordRepository;
 import com.angga.xphr.model.dto.ReportDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ReportService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
 
     @Autowired
     private TimeRecordRepository timeRecordRepository;
 
     public List<ReportDTO> getReport(LocalDateTime startDate, LocalDateTime endDate) {
-        System.out.println("START: " + startDate + ", END: " + endDate);
+        logger.info("Generating report for ALL users - START: {}, END: {}", startDate, endDate);
         List<Object[]> results = timeRecordRepository.findReportNative(startDate, endDate);
-        System.out.println("RESULTS SIZE: " + results.size());
+        logger.info("Fetched {} records", results.size());
+
         List<ReportDTO> reportList = new ArrayList<>();
         for (Object[] row : results) {
             String employeeName = (String) row[0];
@@ -30,9 +35,9 @@ public class ReportService {
     }
 
     public List<ReportDTO> getReportForEmployee(String username, LocalDateTime start, LocalDateTime end) {
-        System.out.println("START: " + start + ", END: " + end);
-        var results = timeRecordRepository.findReportsByEmployeeUsername(username, start, end);
-        System.out.println("RESULTS SIZE: " + results.size());
+        logger.info("Generating report for USER: {} - START: {}, END: {}", username, start, end);
+        List<Object[]> results = timeRecordRepository.findReportsByEmployeeUsername(username, start, end);
+        logger.info("Fetched {} records for {}", results.size(), username);
 
         List<ReportDTO> reportList = new ArrayList<>();
         for (Object[] row : results) {
