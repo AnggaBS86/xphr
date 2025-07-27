@@ -20,15 +20,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests()
-                .requestMatchers("/report").hasAnyRole("EMPLOYEE", "ADMIN")
-                .anyRequest().authenticated()
-                .and()
-            .formLogin().permitAll()
-                .and()
-            .logout().permitAll()
-                .and()
-            .userDetailsService(customUserDetailsService);
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/report").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .anyRequest().authenticated())
+                .formLogin(login -> login.permitAll())
+                .logout(logout -> logout.permitAll())
+                .userDetailsService(customUserDetailsService);
 
         return http.build();
     }
