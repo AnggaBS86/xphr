@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class ReportController {
 
     private final ReportService reportService;
+    private final String reportPage = "report";
 
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
@@ -37,8 +38,8 @@ public class ReportController {
                 ? reportService.getReport(start, end)
                 : reportService.getReportForEmployee(username, start, end);
 
-        model.addAttribute("report", reportData);
-        return "report";
+        model.addAttribute(this.reportPage, reportData);
+        return this.reportPage;
     }
 
     private boolean hasRole(Authentication authentication, String role) {
