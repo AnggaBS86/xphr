@@ -8,6 +8,7 @@ import com.angga.xphr.model.dto.ReportDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +19,7 @@ public class ReportService {
     @Autowired
     private TimeRecordRepository timeRecordRepository;
 
+    @Cacheable(value = "reportCache", key = "'getReport_' + #startDate + '_' + #endDate")
     public List<ReportDTO> getReport(LocalDateTime startDate, LocalDateTime endDate) {
         logger.info("Generating report for ALL users - START: {}, END: {}", startDate, endDate);
         List<Object[]> results = timeRecordRepository.findReportNative(startDate, endDate);
@@ -34,6 +36,7 @@ public class ReportService {
         return reportList;
     }
 
+    @Cacheable(value = "reportCache", key = "'getReportForEmployee_' + #username + '_' + #start + '_' + #end")
     public List<ReportDTO> getReportForEmployee(String username, LocalDateTime start, LocalDateTime end) {
         logger.info("Generating report for USER: {} - START: {}, END: {}", username, start, end);
         List<Object[]> results = timeRecordRepository.findReportsByEmployeeUsername(username, start, end);
