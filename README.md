@@ -22,7 +22,7 @@ XPHR is a Spring Boot application for managing employee time records, generating
 - Java 17+
 - Maven 3.8+
 - PostgreSQL
-- Redis (if used)
+- Redis
 - Optional: IntelliJ IDEA / VS Code
 
 ### Clone / Extract Project
